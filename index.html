@@ -493,13 +493,21 @@
       if (mode === "ar2en") {
         const user = normalizeEnglish(inputEl.value);
         const key  = normalizeEnglish(answer);
-        if (user === key) { correct = true; score += 1; setMessage("✅ Correct! (Next in 5s…)", true); }
+        if (user === key) { correct = true; score += 1; if (autoNextEl.checked) {
+  setMessage("✅ Correct! (Next in 5s…)", true);
+} else {
+  setMessage("✅ Correct!", true);
+}}
         else { markMistake(item); setMessage(`❌ Not quite. Correct answer: ${answer}`, false); }
       } else {
         const strict = strictEl.checked;
         const user = normalizeArabic(inputEl.value, strict);
         const key  = normalizeArabic(answer, strict);
-        if (user === key) { correct = true; score += 1; setMessage("✅ Correct! (Next in 5s…)", true); }
+        if (user === key) { correct = true; score += 1; if (autoNextEl.checked) {
+  setMessage("✅ Correct! (Next in 5s…)", true);
+} else {
+  setMessage("✅ Correct!", true);
+}}
         else {
           markMistake(item);
           const extra = strict ? " (strict ḥarakāt)" : " (ḥarakāt ignored)";
