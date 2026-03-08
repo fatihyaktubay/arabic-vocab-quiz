@@ -2,7 +2,7 @@
 	  box-sizing: border-box;
       }
     body {}
-    .card {border: 1px solid #ddd; border-radius: 12px;}
+    .card {border: 1px solid #ddd;}
     .top { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
     .pill { padding: 6px 10px; border: 1px solid #ddd; border-radius: 999px; font-size: 14px; }
     h1 { font-size: 18px; margin: 0 0 12px; }
