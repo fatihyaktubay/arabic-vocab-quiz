@@ -18,7 +18,7 @@
       margin: 10px 0 6px;
     }
 
-    .hint { color: #666; margin: 0 0 16px; }
+    .hint { color: #666; margin: 0 0 14px; }
 
     /* Touch-friendly input */
     input { width: 100%; max-width:100%; padding: 12px; font-size: 18px; border: 1px solid #ccc; border-radius: 10px; }
