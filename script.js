@@ -1,5 +1,26 @@
     // Load vocab from vocab.js
-    const vocab = window.VOCAB || [];
+    //const vocab = window.VOCAB || [];
+    
+    
+    // Load vocab from database API
+let vocab = [];
+
+async function loadVocabFromDb() {
+  const response = await fetch("api.php");
+  if (!response.ok) {
+    throw new Error("Failed to load vocabulary from api.php");
+  }
+
+  const data = await response.json();
+
+  // Convert DB field names to the structure your quiz already uses
+  vocab = data.map(item => ({
+    chapter: Number(item.chapter),
+    ar: item.arabic,
+    en: item.english,
+    starred: Number(item.starred)
+  }));
+}
 
     // --- State ---
     let deck = [];
@@ -488,8 +509,17 @@
 
     inputEl.addEventListener("keydown", (e) => { if (e.key === "Enter") checkAnswer(); });
 
-    // Start
+  
+   // Start
+(async function start() {
+  try {
+    await loadVocabFromDb();
     renderChapterCheckboxes();
     updateStarCount();
     renderStarredPanel();
     restart();
+  } catch (error) {
+    console.error(error);
+    alert("Could not load vocabulary from database.");
+  }
+})();
