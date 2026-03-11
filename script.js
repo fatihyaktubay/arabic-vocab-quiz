@@ -210,6 +210,7 @@ function updateStarButton() {
 }
 
 async function toggleStarCurrent() {
+  alert("toggleStarCurrent reached");
   if (deck.length === 0) return;
   clearAutoNext();
 
