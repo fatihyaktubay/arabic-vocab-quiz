@@ -1,4 +1,5 @@
 // Load vocab from database API
+
 let vocab = [];
 
 async function loadVocabFromDb() {
@@ -210,13 +211,16 @@ function updateStarButton() {
 }
 
 async function toggleStarCurrent() {
-  alert("toggleStarCurrent reached");
+  
   if (deck.length === 0) return;
   clearAutoNext();
 
   const item = deck[i];
   const k = itemKey(item);
   const willBeStarred = starredKeys.has(k) ? 0 : 1;
+  
+  console.log("item before POST:", item);
+  console.log("sending:", {id:item.id, starred:willBeStarred})
 
   try {
     const response = await fetch("api.php", {
@@ -233,7 +237,7 @@ async function toggleStarCurrent() {
     const result = await response.json();
     console.log("STAR response:", result);
 
-    if (!response.ok || result.changes !== 1) {
+    if (!response.ok || result.success !==true) {
       throw new Error("Database update failed");
     }
 
@@ -609,7 +613,7 @@ toggleStarredBtn.addEventListener("click", () => {
 // Events
 checkBtn.addEventListener("click", checkAnswer);
 showBtn.addEventListener("click", showAnswer);
-starBtn.addEventListener("click", () => alert("pressed the starred button"));
+starBtn.addEventListener("click", toggleStarCurrent);
 nextBtn.addEventListener("click", nextQuestion);
 shuffleBtn.addEventListener("click", shuffleDeck);
 restartBtn.addEventListener("click", restart);
