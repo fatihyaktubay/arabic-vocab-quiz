@@ -2,14 +2,11 @@
 
 header('Content-Type: application/json; charset=utf-8');
 
-$db = new SQLite3('quiz.db');
+$db = new SQLite3(__DIR__ . '/quiz.db');
 
 $method = $_SERVER['REQUEST_METHOD'];
 
-
-// ---------- GET : return all vocabulary ----------
 if ($method === 'GET') {
-
     $result = $db->query("
         SELECT id, chapter, arabic, english, starred
         FROM vocab
@@ -26,10 +23,7 @@ if ($method === 'GET') {
     exit;
 }
 
-
-// ---------- POST : update starred status ----------
 if ($method === 'POST') {
-
     $input = json_decode(file_get_contents('php://input'), true);
 
     $id = isset($input['id']) ? (int)$input['id'] : 0;
@@ -43,13 +37,15 @@ if ($method === 'POST') {
 
     $stmt->bindValue(':starred', $starred, SQLITE3_INTEGER);
     $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-
     $stmt->execute();
 
-    echo json_encode(["success" => true]);
+    echo json_encode([
+        "success" => true,
+        "id" => $id,
+        "starred" => $starred,
+        "changes" => $db->changes()
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-
-// ---------- fallback ----------
-echo json_encode(["error" => "Unsupported request"]);
+echo json_encode(["error" => "Unsupported request"], JSON_UNESCAPED_UNICODE);
