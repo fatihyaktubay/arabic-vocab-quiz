@@ -609,7 +609,7 @@ toggleStarredBtn.addEventListener("click", () => {
 // Events
 checkBtn.addEventListener("click", checkAnswer);
 showBtn.addEventListener("click", showAnswer);
-starBtn.addEventListener("click", toggleStarCurrent);
+starBtn.addEventListener("click", () => alert("pressed the starred button"));
 nextBtn.addEventListener("click", nextQuestion);
 shuffleBtn.addEventListener("click", shuffleDeck);
 restartBtn.addEventListener("click", restart);
