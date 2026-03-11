@@ -229,8 +229,11 @@ async function toggleStarCurrent() {
       })
     });
 
-    if (!response.ok) {
-      throw new Error("Failed to update star status");
+    const result = await response.json();
+    console.log("STAR response:", result);
+
+    if (!response.ok || result.changes !== 1) {
+      throw new Error("Database update failed");
     }
 
     if (willBeStarred === 1) {
