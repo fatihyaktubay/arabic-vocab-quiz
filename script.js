@@ -57,6 +57,11 @@ const nextBtn = document.getElementById("nextBtn");
 const shuffleBtn = document.getElementById("shuffleBtn");
 const restartBtn = document.getElementById("restartBtn");
 
+const editBtn = document.getElementById("editBtn");
+const deleteBtn = document.getElementById("deleteBtn");
+
+
+
 const starCountEl = document.getElementById("starCount");
 const toggleStarredBtn = document.getElementById("toggleStarredBtn");
 const starredPanel = document.getElementById("starredPanel");
@@ -506,6 +511,96 @@ function startMistakeReview() {
   return true;
 }
 
+
+async function editCurrentQuestion() {
+
+  const item = deck[i];
+
+  const newArabic = prompt("Edit Arabic:", item.ar);
+  if(newArabic === null) return;
+
+  const newEnglish = prompt("Edit English:", item.en);
+  if(newEnglish === null) return;
+
+  try {
+
+    const response = await fetch("api.php", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: item.id,
+        arabic: newArabic,
+        english: newEnglish
+      })
+    });
+
+    const result = await response.json();
+
+    if(!result.success) {
+      throw new Error("Edit failed");
+    }
+
+    item.ar = newArabic;
+    item.en = newEnglish;
+
+    render();
+
+    setMessage("Question updated.", true);
+
+  } catch(error) {
+    console.error(error);
+    setMessage("Could not update question.", false);
+  }
+
+}
+
+
+async function deleteCurrentQuestion() {
+
+  const item = deck[i];
+
+  const confirmDelete = confirm("Delete this question?");
+  if(!confirmDelete) return;
+
+  try {
+
+    const response = await fetch("api.php", {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        id: item.id
+      })
+    });
+
+    const result = await response.json();
+
+    if(!result.success) {
+      throw new Error("Delete failed");
+    }
+
+    vocab = vocab.filter(v => v.id !== item.id);
+
+    restart();
+
+    setMessage("Question deleted.", true);
+
+  } catch(error) {
+    console.error(error);
+    setMessage("Could not delete question.", false);
+  }
+
+}
+
+
+
+
+
+
+
 function finishQuiz() {
   clearAutoNext();
 
@@ -617,6 +712,10 @@ starBtn.addEventListener("click", toggleStarCurrent);
 nextBtn.addEventListener("click", nextQuestion);
 shuffleBtn.addEventListener("click", shuffleDeck);
 restartBtn.addEventListener("click", restart);
+editBtn.addEventListener("click", editCurrentQuestion);
+deleteBtn.addEventListener("click", deleteCurrentQuestion);
+
+
 
 modeEl.addEventListener("change", () => { restart(); });
 strictEl.addEventListener("change", () => { render(); });
