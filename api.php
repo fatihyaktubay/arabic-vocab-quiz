@@ -48,4 +48,58 @@ if ($method === 'POST') {
     exit;
 }
 
+
+if ($method === 'PUT') {
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    $id = (int)$input['id'];
+    $arabic = $input['arabic'];
+    $english = $input['english'];
+
+    $stmt = $db->prepare("
+        UPDATE vocab
+        SET arabic = :arabic,
+            english = :english
+        WHERE id = :id
+    ");
+
+    $stmt->bindValue(':arabic', $arabic, SQLITE3_TEXT);
+    $stmt->bindValue(':english', $english, SQLITE3_TEXT);
+    $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+
+    $stmt->execute();
+
+    echo json_encode([
+        "success" => true,
+        "changes" => $db->changes()
+    ]);
+
+    exit;
+}
+
+if ($method === 'DELETE') {
+
+    $input = json_decode(file_get_contents('php://input'), true);
+
+    $id = (int)$input['id'];
+
+    $stmt = $db->prepare("
+        DELETE FROM vocab
+        WHERE id = :id
+    ");
+
+    $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
+    $stmt->execute();
+
+    echo json_encode([
+        "success" => true,
+        "changes" => $db->changes()
+    ]);
+
+    exit;
+}
+
+
+
 echo json_encode(["error" => "Unsupported request"], JSON_UNESCAPED_UNICODE);
