@@ -721,24 +721,6 @@ async function loginAdmin() {
   }
 }
 
-  const result = await response.json();
-
-  if (result.success) {
-
-    isAdmin = true;
-
-    document.getElementById("editBtn").style.display = "inline-block";
-    document.getElementById("deleteBtn").style.display = "inline-block";
-    document.getElementById("starBtn").style.display = "inline-block";
-
-    alert("Admin mode enabled");
-
-  } else {
-
-    alert("Login failed");
-
-  }
-}
 
 
 
