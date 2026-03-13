@@ -646,22 +646,80 @@ function nextQuestion() {
 
 async function loginAdmin() {
 
+  if (isAdmin) {
+    // LOGOUT
+    try {
+
+      const response = await fetch("logout.php");
+      const result = await response.json();
+
+      if (result.success) {
+
+        isAdmin = false;
+
+        editBtn.style.display = "none";
+        deleteBtn.style.display = "none";
+        starBtn.style.display = "none";
+
+        loginBtn.textContent = "Admin Login";
+
+        setMessage("🔒 Admin logged out", true);
+      }
+
+    } catch (error) {
+      console.error(error);
+    }
+
+    return;
+  }
+
+  // LOGIN
   const username = prompt("Username:");
   if (!username) return;
 
   const password = prompt("Password:");
   if (!password) return;
 
-  const response = await fetch("login.php", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      username: username,
-      password: password
-    })
-  });
+  try {
+
+    const response = await fetch("login.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        username: username,
+        password: password
+      })
+    });
+
+    const result = await response.json();
+
+    if (result.success) {
+
+      isAdmin = true;
+
+      editBtn.style.display = "inline-block";
+      deleteBtn.style.display = "inline-block";
+      starBtn.style.display = "inline-block";
+
+      loginBtn.textContent = "Admin Logout";
+
+      setMessage("🔓 Admin mode enabled", true);
+
+    } else {
+
+      setMessage("Login failed.", false);
+
+    }
+
+  } catch (error) {
+
+    console.error(error);
+    setMessage("Login request failed.", false);
+
+  }
+}
 
   const result = await response.json();
 
