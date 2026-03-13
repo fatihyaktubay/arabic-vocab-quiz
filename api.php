@@ -1,35 +1,37 @@
 <?php
-
-
 session_start();
 
 header('Content-Type: application/json; charset=utf-8');
 
 $db = new SQLite3(__DIR__ . '/quiz.db');
-
-
 $method = $_SERVER['REQUEST_METHOD'];
 
-if (($method === 'POST' || $method === 'PUT' || $method === 'DELETE')
-    && !isset($_SESSION['admin'])) {
-
+// Protect write operations
+if (in_array($method, ['POST', 'PUT', 'DELETE'], true) && !isset($_SESSION['admin'])) {
     http_response_code(403);
-
     echo json_encode([
+        "success" => false,
         "error" => "Not authorized"
-    ]);
-
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-$method = $_SERVER['REQUEST_METHOD'];
-
+// ---------- GET : return all vocabulary ----------
 if ($method === 'GET') {
     $result = $db->query("
         SELECT id, chapter, arabic, english, starred
         FROM vocab
         ORDER BY chapter, id
     ");
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     $data = [];
 
@@ -41,11 +43,21 @@ if ($method === 'GET') {
     exit;
 }
 
+// ---------- POST : update starred status ----------
 if ($method === 'POST') {
     $input = json_decode(file_get_contents('php://input'), true);
 
     $id = isset($input['id']) ? (int)$input['id'] : 0;
     $starred = isset($input['starred']) ? (int)$input['starred'] : 0;
+
+    if ($id <= 0) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "error" => "Invalid id"
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     $stmt = $db->prepare("
         UPDATE vocab
@@ -53,9 +65,28 @@ if ($method === 'POST') {
         WHERE id = :id
     ");
 
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $stmt->bindValue(':starred', $starred, SQLITE3_INTEGER);
     $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-    $stmt->execute();
+
+    $result = $stmt->execute();
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     echo json_encode([
         "success" => true,
@@ -66,14 +97,22 @@ if ($method === 'POST') {
     exit;
 }
 
-
+// ---------- PUT : edit question ----------
 if ($method === 'PUT') {
-
     $input = json_decode(file_get_contents('php://input'), true);
 
-    $id = (int)$input['id'];
-    $arabic = $input['arabic'];
-    $english = $input['english'];
+    $id = isset($input['id']) ? (int)$input['id'] : 0;
+    $arabic = trim($input['arabic'] ?? '');
+    $english = trim($input['english'] ?? '');
+
+    if ($id <= 0 || $arabic === '' || $english === '') {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "error" => "Invalid input"
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     $stmt = $db->prepare("
         UPDATE vocab
@@ -82,42 +121,91 @@ if ($method === 'PUT') {
         WHERE id = :id
     ");
 
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $stmt->bindValue(':arabic', $arabic, SQLITE3_TEXT);
     $stmt->bindValue(':english', $english, SQLITE3_TEXT);
     $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
 
-    $stmt->execute();
+    $result = $stmt->execute();
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     echo json_encode([
         "success" => true,
+        "id" => $id,
         "changes" => $db->changes()
-    ]);
-
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
+// ---------- DELETE : remove question ----------
 if ($method === 'DELETE') {
-
     $input = json_decode(file_get_contents('php://input'), true);
 
-    $id = (int)$input['id'];
+    $id = isset($input['id']) ? (int)$input['id'] : 0;
+
+    if ($id <= 0) {
+        http_response_code(400);
+        echo json_encode([
+            "success" => false,
+            "error" => "Invalid id"
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     $stmt = $db->prepare("
         DELETE FROM vocab
         WHERE id = :id
     ");
 
+    if (!$stmt) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
     $stmt->bindValue(':id', $id, SQLITE3_INTEGER);
-    $stmt->execute();
+
+    $result = $stmt->execute();
+
+    if (!$result) {
+        http_response_code(500);
+        echo json_encode([
+            "success" => false,
+            "error" => $db->lastErrorMsg()
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
 
     echo json_encode([
         "success" => true,
+        "id" => $id,
         "changes" => $db->changes()
-    ]);
-
+    ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-
-
-echo json_encode(["error" => "Unsupported request"], JSON_UNESCAPED_UNICODE);
+// ---------- fallback ----------
+http_response_code(405);
+echo json_encode([
+    "success" => false,
+    "error" => "Unsupported request method"
+], JSON_UNESCAPED_UNICODE);
