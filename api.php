@@ -1,8 +1,26 @@
 <?php
 
+
+session_start();
+
 header('Content-Type: application/json; charset=utf-8');
 
 $db = new SQLite3(__DIR__ . '/quiz.db');
+
+
+$method = $_SERVER['REQUEST_METHOD'];
+
+if (($method === 'POST' || $method === 'PUT' || $method === 'DELETE')
+    && !isset($_SESSION['admin'])) {
+
+    http_response_code(403);
+
+    echo json_encode([
+        "error" => "Not authorized"
+    ]);
+
+    exit;
+}
 
 $method = $_SERVER['REQUEST_METHOD'];
 
