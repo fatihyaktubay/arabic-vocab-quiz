@@ -60,6 +60,9 @@ const restartBtn = document.getElementById("restartBtn");
 const editBtn = document.getElementById("editBtn");
 const deleteBtn = document.getElementById("deleteBtn");
 
+const loginBtn = document.getElementById("loginBtn");
+let isAdmin = false;
+
 
 
 const starCountEl = document.getElementById("starCount");
@@ -641,6 +644,46 @@ function nextQuestion() {
   }
 }
 
+async function loginAdmin() {
+
+  const username = prompt("Username:");
+  if (!username) return;
+
+  const password = prompt("Password:");
+  if (!password) return;
+
+  const response = await fetch("login.php", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      username: username,
+      password: password
+    })
+  });
+
+  const result = await response.json();
+
+  if (result.success) {
+
+    isAdmin = true;
+
+    document.getElementById("editBtn").style.display = "";
+    document.getElementById("deleteBtn").style.display = "";
+    document.getElementById("starBtn").style.display = "";
+
+    alert("Admin mode enabled");
+
+  } else {
+
+    alert("Login failed");
+
+  }
+}
+
+
+
 function shuffleDeck() {
   clearAutoNext();
   for (let k = deck.length - 1; k > 0; k--) {
@@ -714,6 +757,7 @@ shuffleBtn.addEventListener("click", shuffleDeck);
 restartBtn.addEventListener("click", restart);
 editBtn.addEventListener("click", editCurrentQuestion);
 deleteBtn.addEventListener("click", deleteCurrentQuestion);
+loginBtn.addEventListener("click", loginAdmin);
 
 
 
