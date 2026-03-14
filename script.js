@@ -599,11 +599,6 @@ async function deleteCurrentQuestion() {
 }
 
 
-
-
-
-
-
 function finishQuiz() {
   clearAutoNext();
 
@@ -615,7 +610,10 @@ function finishQuiz() {
     }
   }
 
+  qEl.style.direction = "ltr";
+  qEl.style.unicodeBidi = "isolate";
   qEl.textContent = "🎉 Finished!";
+
   hintEl.textContent = "";
   wrongCountTagEl.style.display = "none";
   inputEl.value = "";
@@ -631,6 +629,11 @@ function finishQuiz() {
     ? "Mistakes review completed. Press Restart to start again."
     : "Press Restart to play again.";
 }
+
+
+
+
+
 
 function nextQuestion() {
   clearAutoNext();
