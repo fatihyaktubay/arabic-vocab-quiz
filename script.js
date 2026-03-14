@@ -140,7 +140,7 @@ function renderChapterCheckboxes() {
     cb.addEventListener("change", () => {
       chapterState.set(ch, cb.checked);
       updateChapterButtonText();
-      restart();
+     
     });
 
     const label = document.createElement("label");
