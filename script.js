@@ -741,6 +741,7 @@ function shuffleDeck() {
 function restart() {
   clearAutoNext();
   deck = buildDeckFromSelection();
+  shuffleDeck();
   i = 0;
   score = 0;
   answered = false;
