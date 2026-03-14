@@ -797,7 +797,7 @@ checkBtn.addEventListener("click", checkAnswer);
 showBtn.addEventListener("click", showAnswer);
 starBtn.addEventListener("click", toggleStarCurrent);
 nextBtn.addEventListener("click", nextQuestion);
-shuffleBtn.addEventListener("click", shuffleDeck);
+
 restartBtn.addEventListener("click", restart);
 editBtn.addEventListener("click", editCurrentQuestion);
 deleteBtn.addEventListener("click", deleteCurrentQuestion);
